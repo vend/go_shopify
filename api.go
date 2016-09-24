@@ -3,12 +3,13 @@ package shopify
 import (
 	"bytes"
 	"fmt"
-	"github.com/jpillora/backoff"
 	"io"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jpillora/backoff"
 )
 
 const REFILL_RATE = float64(0.5) // 2 per second
@@ -84,6 +85,7 @@ func (api *API) request(endpoint string, method string, params map[string]interf
 	}
 
 	result = &bytes.Buffer{}
+	defer resp.Body.Close()
 	if _, err = io.Copy(result, resp.Body); err != nil {
 		return
 	}
