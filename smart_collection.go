@@ -11,15 +11,15 @@ import (
 )
 
 type SmartCollection struct {
-	BodyHtml string `json:"body_html"`
+	BodyHTML string `json:"body_html"`
 
 	Disjunctive bool `json:"disjunctive"`
 
 	Handle string `json:"handle"`
 
-	Id int64 `json:"id"`
+	ID int64 `json:"id"`
 
-	PublishedAt time.Time `json:"published_at"`
+	PublishedAt *time.Time `json:"published_at,omitempty"`
 
 	PublishedScope string `json:"published_scope"`
 
@@ -29,7 +29,7 @@ type SmartCollection struct {
 
 	Title string `json:"title"`
 
-	UpdatedAt time.Time `json:"updated_at"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 
 	Rules []Rule `json:"rules"`
 
@@ -94,11 +94,11 @@ func (api *API) NewSmartCollection() *SmartCollection {
 }
 
 func (obj *SmartCollection) Save() error {
-	endpoint := fmt.Sprintf("/admin/smart_collections/%d.json", obj.Id)
+	endpoint := fmt.Sprintf("/admin/smart_collections/%d.json", obj.ID)
 	method := "PUT"
 	expectedStatus := 201
 
-	if obj.Id == 0 {
+	if obj.ID == 0 {
 		endpoint = fmt.Sprintf("/admin/smart_collections.json")
 		method = "POST"
 		expectedStatus = 201
@@ -125,9 +125,9 @@ func (obj *SmartCollection) Save() error {
 		err = json.NewDecoder(res).Decode(&r)
 		if err == nil {
 			return fmt.Errorf("Status %d: %v", status, r.Errors)
-		} else {
-			return fmt.Errorf("Status %d, and error parsing body: %s", status, err)
 		}
+
+		return fmt.Errorf("Status %d, and error parsing body: %s", status, err)
 	}
 
 	r := map[string]SmartCollection{}
