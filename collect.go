@@ -28,12 +28,23 @@ type Collect struct {
 	api *API
 }
 
+type CollectOptions struct {
+	Limit int `url:"limit,omitempty"`
+	Page  int `url:"page,omitempty"`
+}
+
 func (api *API) NewCollect() *Collect {
 	return &Collect{api: api}
 }
 
 func (api *API) Collects() ([]Collect, error) {
-	res, status, err := api.request("/admin/collects.json", "GET", nil, nil)
+	return api.CollectsWithOptions(&CollectOptions{})
+}
+
+func (api *API) CollectsWithOptions(options *CollectOptions) ([]Collect, error) {
+	qs := encodeOptions(options)
+	endpoint := fmt.Sprintf("/admin/collects.json?%v", qs)
+	res, status, err := api.request(endpoint, "GET", nil, nil)
 
 	if err != nil {
 		return nil, err
