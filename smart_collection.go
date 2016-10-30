@@ -19,6 +19,8 @@ type SmartCollection struct {
 
 	ID int64 `json:"id"`
 
+	Image interface{} `json:"image,omitempty"`
+
 	PublishedAt *time.Time `json:"published_at,omitempty"`
 
 	PublishedScope string `json:"published_scope"`
