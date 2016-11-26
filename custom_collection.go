@@ -35,7 +35,13 @@ type CustomCollection struct {
 }
 
 func (api *API) CustomCollections() ([]CustomCollection, error) {
-	res, status, err := api.request("/admin/custom_collections.json", "GET", nil, nil)
+	return api.CustomCollectionsWithOptions(&CollectionOptions{})
+}
+
+func (api *API) CustomCollectionsWithOptions(options *CollectionOptions) ([]CustomCollection, error) {
+	qs := encodeOptions(options)
+	endpoint := fmt.Sprintf("/admin/custom_collections.json?%v", qs)
+	res, status, err := api.request(endpoint, "GET", nil, nil)
 
 	if err != nil {
 		return nil, err

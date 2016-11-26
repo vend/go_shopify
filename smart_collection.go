@@ -38,8 +38,22 @@ type SmartCollection struct {
 	api *API
 }
 
+type CollectionOptions struct {
+	Handle    string `url:"handle,omitempty"`
+	IDs       string `url:"ids,omitempty"`
+	Limit     int    `url:"limit,omitempty"`
+	Page      int    `url:"page,omitempty"`
+	ProductID string `url:"product_id,omitempty"`
+}
+
 func (api *API) SmartCollections() ([]SmartCollection, error) {
-	res, status, err := api.request("/admin/smart_collections.json", "GET", nil, nil)
+	return api.SmartCollectionsWithOptions(&CollectionOptions{})
+}
+
+func (api *API) SmartCollectionsWithOptions(options *CollectionOptions) ([]SmartCollection, error) {
+	qs := encodeOptions(options)
+	endpoint := fmt.Sprintf("/admin/smart_collections.json?%v", qs)
+	res, status, err := api.request(endpoint, "GET", nil, nil)
 
 	if err != nil {
 		return nil, err

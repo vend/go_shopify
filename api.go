@@ -14,7 +14,6 @@ import (
 
 const REFILL_RATE = float64(0.5) // 2 per second
 const BUCKET_LIMIT = 40
-const BUCKET_SLOWDOWN = 30
 const MAX_RETRIES = 3
 
 type API struct {
