@@ -1,5 +1,11 @@
 package shopify
 
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+)
+
 type Variant struct {
 	Barcode              string      `json:"barcode,omitempty"`
 	CompareAtPrice       string      `json:"compare_at_price,omitempty"`
@@ -26,4 +32,52 @@ type Variant struct {
 	Title                string      `json:"title,omitempty"`
 	UpdatedAt            string      `json:"updated_at,omitempty"`
 	ImageId              int64       `json:"image_id,omitempty"`
+
+	api *API
+}
+
+func (api *API) NewVariant() *Variant {
+	return &Variant{api: api}
+}
+
+func (obj *Variant) Save() error {
+	endpoint := fmt.Sprintf("/admin/variants/%d.json", obj.Id)
+	method := "PUT"
+	expectedStatus := 200
+
+	var buf bytes.Buffer
+	body := map[string]*Variant{
+		"variant": obj,
+	}
+	err := json.NewEncoder(&buf).Encode(body)
+	if err != nil {
+		return err
+	}
+
+	res, status, err := obj.api.request(endpoint, method, nil, &buf)
+	if err != nil {
+		return err
+	}
+
+	if status != expectedStatus {
+		var r errorResponse
+		err := json.NewDecoder(res).Decode(&r)
+		if err == nil {
+			return fmt.Errorf("Status %d: %v", status, r.Errors)
+		} else {
+			return fmt.Errorf("Status %d, and error parsing body: %s", status, err)
+		}
+	}
+
+	r := map[string]Variant{}
+	err = json.NewDecoder(res).Decode(&r)
+	if err != nil {
+		return err
+	}
+
+	api := obj.api
+	*obj = r["variant"]
+	obj.api = api
+
+	return nil
 }
