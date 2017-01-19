@@ -33,6 +33,10 @@ type errorResponse struct {
 	Errors map[string]interface{} `json:"errors"`
 }
 
+type errorStringResponse struct {
+	Errors string `json:"errors"`
+}
+
 func (api *API) request(endpoint string, method string, params map[string]interface{}, body io.Reader) (result *bytes.Buffer, status int, err error) {
 	if api.client == nil {
 		api.client = &http.Client{}

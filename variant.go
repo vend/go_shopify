@@ -60,7 +60,7 @@ func (obj *Variant) Save() error {
 	}
 
 	if status != expectedStatus {
-		var r errorResponse
+		var r errorStringResponse
 		err := json.NewDecoder(res).Decode(&r)
 		if err == nil {
 			return fmt.Errorf("Status %d: %v", status, r.Errors)
