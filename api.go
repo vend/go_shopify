@@ -61,7 +61,7 @@ func (api *API) request(endpoint string, method string, params map[string]interf
 		return
 	}
 
-	if api.AccessToken != "" {
+	if api.Secret == "" {
 		req.Header.Set("X-Shopify-Access-Token", api.AccessToken)
 	} else {
 		sum := md5.Sum([]byte(api.Secret + api.AccessToken))
