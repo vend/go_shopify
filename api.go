@@ -2,6 +2,8 @@ package shopify
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -20,7 +22,7 @@ type API struct {
 	Shop        string // for e.g. demo-3.myshopify.com
 	AccessToken string // permanent store access token
 	Token       string // API client token
-	Secret      string // API client secret for this shop
+	Secret      string // API client secret for this application
 	client      *http.Client
 
 	callLimit  int
@@ -62,7 +64,9 @@ func (api *API) request(endpoint string, method string, params map[string]interf
 	if api.AccessToken != "" {
 		req.Header.Set("X-Shopify-Access-Token", api.AccessToken)
 	} else {
-		req.SetBasicAuth(api.Token, api.Secret)
+		sum := md5.Sum([]byte(api.Secret + api.AccessToken))
+		hexSum := hex.EncodeToString(sum[:])
+		req.SetBasicAuth(api.Token, hexSum)
 	}
 	req.Header.Add("Content-Type", "application/json")
 
