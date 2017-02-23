@@ -17,7 +17,7 @@ type Variant struct {
 	Id                   int64       `json:"id,omitempty"`
 	InventoryManagement  string      `json:"inventory_management,omitempty"`
 	InventoryPolicy      string      `json:"inventory_policy,omitempty"`
-	InventoryQuantity    int64       `json:"inventory_quantity,omitempty"`
+	InventoryQuantity    int64       `json:"inventory_quantity"`
 	OldInventoryQuantity int64       `json:"old_inventory_quantity,omitempty"`
 	Metafield            interface{} `json:"metafield,omitempty"`
 	Option1              string      `json:"option1,omitempty"`
