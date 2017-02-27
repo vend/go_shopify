@@ -110,13 +110,7 @@ func (obj *Metafield) Save() error {
 	}
 
 	if status != expectedStatus {
-		r := errorResponse{}
-		err = json.NewDecoder(res).Decode(&r)
-		if err == nil {
-			return fmt.Errorf("Status %d: %v", status, r.Errors)
-		} else {
-			return fmt.Errorf("Status %d, and error parsing body: %s", status, err)
-		}
+		return newErrorResponse(status, res)
 	}
 
 	r := map[string]Metafield{}
@@ -161,13 +155,7 @@ func (obj *Metafield) SaveForProduct(productId int64) error {
 	}
 
 	if status != expectedStatus {
-		r := errorResponse{}
-		err = json.NewDecoder(res).Decode(&r)
-		if err == nil {
-			return fmt.Errorf("Status %d: %v", status, r.Errors)
-		} else {
-			return fmt.Errorf("Status %d, and error parsing body: %s", status, err)
-		}
+		return newErrorResponse(status, res)
 	}
 
 	r := map[string]Metafield{}

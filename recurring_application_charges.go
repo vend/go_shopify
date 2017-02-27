@@ -120,13 +120,7 @@ func (obj *RecurringApplicationCharge) Save() error {
 	}
 
 	if status != expectedStatus {
-		r := errorResponse{}
-		err = json.NewDecoder(res).Decode(&r)
-		if err == nil {
-			return fmt.Errorf("Status %d: %v", status, r.Errors)
-		} else {
-			return fmt.Errorf("Status %d, and error parsing body: %s", status, err)
-		}
+		return newErrorResponse(status, res)
 	}
 
 	r := map[string]RecurringApplicationCharge{}
@@ -155,13 +149,7 @@ func (obj *RecurringApplicationCharge) Activate() error {
 	}
 
 	if status != expectedStatus {
-		r := errorResponse{}
-		err = json.NewDecoder(res).Decode(&r)
-		if err == nil {
-			return fmt.Errorf("Status %d: %v", status, r.Errors)
-		} else {
-			return fmt.Errorf("Status %d, and error parsing body: %s", status, err)
-		}
+		return newErrorResponse(status, res)
 	}
 
 	return nil
@@ -179,13 +167,7 @@ func (obj *RecurringApplicationCharge) Delete() error {
 	}
 
 	if status != expectedStatus {
-		r := errorResponse{}
-		err = json.NewDecoder(res).Decode(&r)
-		if err == nil {
-			return fmt.Errorf("Status %d: %v", status, r.Errors)
-		} else {
-			return fmt.Errorf("Status %d, and error parsing body: %s", status, err)
-		}
+		return newErrorResponse(status, res)
 	}
 
 	return nil
