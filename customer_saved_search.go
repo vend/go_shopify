@@ -38,8 +38,6 @@ func (api *API) CustomerSavedSearches() ([]CustomerSavedSearch, error) {
 	r := &map[string][]CustomerSavedSearch{}
 	err = json.NewDecoder(res).Decode(r)
 
-	fmt.Printf("things are: %v\n\n", *r)
-
 	result := (*r)["customer_saved_searches"]
 
 	if err != nil {
@@ -68,8 +66,6 @@ func (api *API) CustomerSavedSearch(id int64) (*CustomerSavedSearch, error) {
 
 	r := map[string]CustomerSavedSearch{}
 	err = json.NewDecoder(res).Decode(&r)
-
-	fmt.Printf("things are: %v\n\n", r)
 
 	result := r["customer_saved_search"]
 
@@ -123,12 +119,6 @@ func (obj *CustomerSavedSearch) Save() error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Printf("things are: %v\n\n", r)
-
-	*obj = r["customer_saved_search"]
-
-	fmt.Printf("things are: %v\n\n", res)
 
 	return nil
 }
