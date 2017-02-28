@@ -24,7 +24,6 @@ type API struct {
 	AccessToken string // permanent store access token
 	Token       string // API client token
 	Secret      string // API client secret for this application
-	client      *http.Client
 
 	callLimit  int
 	callsMade  int
@@ -71,9 +70,6 @@ func (e *ErrorResponse) Temporary() bool {
 }
 
 func (api *API) request(endpoint string, method string, params map[string]interface{}, body io.Reader) (result *bytes.Buffer, status int, err error) {
-	if api.client == nil {
-		api.client = &http.Client{}
-	}
 	if api.backoff == nil {
 		api.backoff = &backoff.Backoff{
 			//These are the defaults
@@ -101,7 +97,7 @@ func (api *API) request(endpoint string, method string, params map[string]interf
 	}
 	req.Header.Add("Content-Type", "application/json")
 
-	resp, err := api.client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return
 	}
