@@ -60,7 +60,7 @@ func (obj *Variant) Save() error {
 	}
 
 	if status != expectedStatus {
-		return newErrorStringResponse(status, res)
+		return newErrorResponse(status, res)
 	}
 
 	r := map[string]Variant{}

@@ -33,11 +33,10 @@ type API struct {
 }
 
 // ErrorResponse is returned when an unexpected HTTP status code is received.
-// This is the most common type of error returned by the Shopify API.
 type ErrorResponse struct {
-	// Errors is a map of errors returned in the HTTP response, if it was
-	// possible to decode the response as JSON.
-	Errors map[string]interface{} `json:"errors"`
+	// Errors is either a map of errors or a single error string returned
+	// in the HTTP response, if it was possible to decode the response as JSON.
+	Errors interface{} `json:"errors"`
 	// StatusCode is the HTTP status code served in the response.
 	StatusCode int `json:"-"`
 	// Body is the HTTP response body.
@@ -68,45 +67,6 @@ func (e *ErrorResponse) Error() string {
 // Temporary returns true when the status code indicates that an error is probably
 // temporary.
 func (e *ErrorResponse) Temporary() bool {
-	return e.StatusCode >= 500
-}
-
-// ErrorStringResponse is returned when an unexpected HTTP status code is received.
-// This is returned by a few endpoints instead of ErrorResponse.
-type ErrorStringResponse struct {
-	// Errors is an error string returned in the HTTP response, if it was
-	// possible to decode the response as JSON.
-	Errors string `json:"errors"`
-	// StatusCode is the HTTP status code served in the response.
-	StatusCode int `json:"-"`
-	// Body is the HTTP response body.
-	Body []byte `json:"-"`
-	// BodyErr is any encoding/json error that occurred while trying to
-	// unmarshal into the Errors field.
-	BodyErr error `json:"-"`
-}
-
-func newErrorStringResponse(status int, body *bytes.Buffer) error {
-	var r ErrorStringResponse
-	r.StatusCode = status
-	r.Body = body.Bytes()
-	r.BodyErr = json.NewDecoder(body).Decode(&r)
-	return &r
-}
-
-func (e *ErrorStringResponse) Error() string {
-	ret := fmt.Sprintf("status %d: %v", e.StatusCode, e.Errors)
-	if e.BodyErr != nil {
-		ret += "; error parsing body: " + e.BodyErr.Error()
-	} else if len(e.Body) > 0 {
-		ret += "; body: " + string(e.Body)
-	}
-	return ret
-}
-
-// Temporary returns true when the status code indicates that an error is probably
-// temporary.
-func (e *ErrorStringResponse) Temporary() bool {
 	return e.StatusCode >= 500
 }
 
