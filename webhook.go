@@ -109,7 +109,7 @@ func (obj *Webhook) Save(partial *Webhook) error {
 	}
 
 	if status != expectedStatus {
-		return newErrorResponse(status, res)
+		return newErrorResponse(status, nil, res)
 	}
 
 	r := map[string]Webhook{}
@@ -138,7 +138,7 @@ func (obj *Webhook) Delete() error {
 	}
 
 	if status != expectedStatus {
-		return newErrorResponse(status, res)
+		return newErrorResponse(status, nil, res)
 	}
 
 	return nil

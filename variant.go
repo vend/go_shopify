@@ -53,6 +53,7 @@ func (obj *Variant) Save() error {
 	if err != nil {
 		return err
 	}
+	reqBody := buf.Bytes()
 
 	res, status, err := obj.api.request(endpoint, method, nil, &buf)
 	if err != nil {
@@ -60,7 +61,7 @@ func (obj *Variant) Save() error {
 	}
 
 	if status != expectedStatus {
-		return newErrorResponse(status, res)
+		return newErrorResponse(status, reqBody, res)
 	}
 
 	r := map[string]Variant{}

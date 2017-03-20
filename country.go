@@ -116,7 +116,7 @@ func (obj *Country) Save() error {
 	}
 
 	if status != expectedStatus {
-		return newErrorResponse(status, res)
+		return newErrorResponse(status, nil, res)
 	}
 
 	r := map[string]Country{}

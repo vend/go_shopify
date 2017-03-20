@@ -120,7 +120,7 @@ func (obj *RecurringApplicationCharge) Save() error {
 	}
 
 	if status != expectedStatus {
-		return newErrorResponse(status, res)
+		return newErrorResponse(status, nil, res)
 	}
 
 	r := map[string]RecurringApplicationCharge{}
@@ -149,7 +149,7 @@ func (obj *RecurringApplicationCharge) Activate() error {
 	}
 
 	if status != expectedStatus {
-		return newErrorResponse(status, res)
+		return newErrorResponse(status, nil, res)
 	}
 
 	return nil
@@ -167,7 +167,7 @@ func (obj *RecurringApplicationCharge) Delete() error {
 	}
 
 	if status != expectedStatus {
-		return newErrorResponse(status, res)
+		return newErrorResponse(status, nil, res)
 	}
 
 	return nil

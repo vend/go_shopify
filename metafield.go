@@ -110,7 +110,7 @@ func (obj *Metafield) Save() error {
 	}
 
 	if status != expectedStatus {
-		return newErrorResponse(status, res)
+		return newErrorResponse(status, nil, res)
 	}
 
 	r := map[string]Metafield{}
@@ -155,7 +155,7 @@ func (obj *Metafield) SaveForProduct(productId int64) error {
 	}
 
 	if status != expectedStatus {
-		return newErrorResponse(status, res)
+		return newErrorResponse(status, nil, res)
 	}
 
 	r := map[string]Metafield{}

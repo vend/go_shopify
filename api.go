@@ -38,6 +38,8 @@ type ErrorResponse struct {
 	Errors interface{} `json:"errors"`
 	// StatusCode is the HTTP status code served in the response.
 	StatusCode int `json:"-"`
+	// ReqBody is the HTTP request body.
+	ReqBody []byte `json:"-"`
 	// Body is the HTTP response body.
 	Body []byte `json:"-"`
 	// BodyErr is any encoding/json error that occurred while trying to
@@ -45,9 +47,10 @@ type ErrorResponse struct {
 	BodyErr error `json:"-"`
 }
 
-func newErrorResponse(status int, body *bytes.Buffer) error {
+func newErrorResponse(status int, reqBody []byte, body *bytes.Buffer) error {
 	var r ErrorResponse
 	r.StatusCode = status
+	r.ReqBody = reqBody
 	r.Body = body.Bytes()
 	r.BodyErr = json.NewDecoder(body).Decode(&r)
 	return &r
@@ -55,10 +58,14 @@ func newErrorResponse(status int, body *bytes.Buffer) error {
 
 func (e *ErrorResponse) Error() string {
 	ret := fmt.Sprintf("status %d: %v", e.StatusCode, e.Errors)
+	if len(e.ReqBody) > 0 {
+		ret += "; request body: " + string(e.ReqBody)
+	}
 	if e.BodyErr != nil {
 		ret += "; error parsing body: " + e.BodyErr.Error()
-	} else if len(e.Body) > 0 {
-		ret += "; body: " + string(e.Body)
+	}
+	if len(e.Body) > 0 {
+		ret += "; response body: " + string(e.Body)
 	}
 	return ret
 }

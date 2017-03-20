@@ -274,7 +274,7 @@ func (obj *Product) Save(partial *Product) error {
 	}
 
 	if status != expectedStatus {
-		return newErrorResponse(status, res)
+		return newErrorResponse(status, nil, res)
 	}
 
 	r := map[string]Product{}
@@ -303,7 +303,7 @@ func (obj *Product) Delete() error {
 	}
 
 	if status != expectedStatus {
-		return newErrorResponse(status, res)
+		return newErrorResponse(status, nil, res)
 	}
 
 	return nil
