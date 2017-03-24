@@ -76,7 +76,7 @@ func (e *ErrorResponse) Temporary() bool {
 	return e.StatusCode >= 500
 }
 
-func (api *API) request(endpoint string, method string, params map[string]interface{}, body io.Reader) (result *bytes.Buffer, status int, err error) {
+func (api *API) request(endpoint string, method string, params map[string]interface{}, body *bytes.Buffer) (result *bytes.Buffer, status int, err error) {
 	if api.backoff == nil {
 		api.backoff = &backoff.Backoff{
 			//These are the defaults
@@ -87,6 +87,13 @@ func (api *API) request(endpoint string, method string, params map[string]interf
 	}
 	if api.callLimit == 0 {
 		api.callLimit = BUCKET_LIMIT
+	}
+
+	// Keep a copy of body so that we can use it when retrying.
+	var bodyBackup *bytes.Buffer
+	if body != nil {
+		bodyBackup = new(bytes.Buffer)
+		*bodyBackup = *body
 	}
 
 	uri := fmt.Sprintf("https://%s%s", api.Shop, endpoint)
@@ -120,7 +127,7 @@ func (api *API) request(endpoint string, method string, params map[string]interf
 			b := api.backoff.Duration()
 			time.Sleep(b)
 			// try again
-			return api.request(endpoint, method, params, body)
+			return api.request(endpoint, method, params, bodyBackup)
 		}
 		// else just return
 	}
