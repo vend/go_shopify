@@ -115,6 +115,7 @@ func (api *API) request(endpoint string, method string, params map[string]interf
 	if err != nil {
 		return
 	}
+	defer resp.Body.Close()
 
 	calls, total := parseAPICallLimit(resp.Header.Get("HTTP_X_SHOPIFY_SHOP_API_CALL_LIMIT"))
 	api.callsMade = calls
@@ -133,7 +134,6 @@ func (api *API) request(endpoint string, method string, params map[string]interf
 	}
 
 	result = &bytes.Buffer{}
-	defer resp.Body.Close()
 	if _, err = io.Copy(result, resp.Body); err != nil {
 		return
 	}
