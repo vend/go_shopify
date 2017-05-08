@@ -73,7 +73,7 @@ func (e *ErrorResponse) Error() string {
 // Temporary returns true when the status code indicates that an error is probably
 // temporary.
 func (e *ErrorResponse) Temporary() bool {
-	return e.StatusCode >= 500
+	return e.StatusCode >= 500 || e.StatusCode == http.StatusTooManyRequests
 }
 
 func (api *API) request(endpoint string, method string, params map[string]interface{}, body *bytes.Buffer) (result *bytes.Buffer, status int, err error) {
