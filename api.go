@@ -8,15 +8,16 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/jpillora/backoff"
+	"github.com/vend/log"
 )
 
 const REFILL_RATE = float64(0.5) // 2 per second
-const BUCKET_LIMIT = 40
 const MAX_RETRIES = 3
 
 type API struct {
@@ -77,16 +78,28 @@ func (e *ErrorResponse) Temporary() bool {
 }
 
 func (api *API) request(endpoint string, method string, params map[string]interface{}, body *bytes.Buffer) (result *bytes.Buffer, status int, err error) {
+	bucketLimit, err := strconv.Atoi(os.Getenv("BUCKET_LIMIT"))
+	if err != nil {
+		bucketLimit = 30
+	}
+
 	if api.backoff == nil {
+		minBackoffSecond, err := strconv.ParseInt(os.Getenv("MIN_BACKOFF_SECOND"), 10, 64)
+		if err != nil {
+			minBackoffSecond = 1
+		}
+		maxBackoffSecond, err := strconv.ParseInt(os.Getenv("MAX_BACKOFF_SECOND"), 10, 64)
+		if err != nil {
+			maxBackoffSecond = 4
+		}
 		api.backoff = &backoff.Backoff{
-			//These are the defaults
-			Min:    100 * time.Millisecond,
-			Max:    2 * time.Second,
+			Min:    time.Duration(minBackoffSecond) * time.Second,
+			Max:    time.Duration(maxBackoffSecond) * time.Second,
 			Jitter: true,
 		}
 	}
 	if api.callLimit == 0 {
-		api.callLimit = BUCKET_LIMIT
+		api.callLimit = bucketLimit
 	}
 
 	// Keep a copy of body so that we can use it when retrying.
@@ -126,6 +139,7 @@ func (api *API) request(endpoint string, method string, params map[string]interf
 		if api.retryCount < MAX_RETRIES {
 			api.retryCount = api.retryCount + 1
 			b := api.backoff.Duration()
+			log.Global().WithField("backoff duration values", b).WithField("calls made ", calls).WithField("calls limit ", total).Error("time to sleep")
 			time.Sleep(b)
 			// try again
 			return api.request(endpoint, method, params, bodyBackup)
