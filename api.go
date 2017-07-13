@@ -78,8 +78,8 @@ func (e *ErrorResponse) Temporary() bool {
 func (api *API) request(endpoint string, method string, params map[string]interface{}, body *bytes.Buffer) (result *bytes.Buffer, status int, err error) {
 	if api.backoff == nil {
 		api.backoff = &backoff.Backoff{
-			Min:    time.Duration(defaultConfig.MinBackoffValue) * defaultConfig.MinBackOffTimeUnit,
-			Max:    time.Duration(defaultConfig.MaxBackoffValue) * defaultConfig.MaxBackOffTimeUnit,
+			Min:    defaultConfig.MinBackoffValue,
+			Max:    defaultConfig.MaxBackoffValue,
 			Jitter: true,
 		}
 	}
