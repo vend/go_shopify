@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -17,8 +16,7 @@ import (
 	"github.com/vend/log"
 )
 
-const REFILL_RATE = float64(0.5) // 2 per second
-const MAX_RETRIES = 3
+var defaultConfig = DefaultConfig()
 
 type API struct {
 	Shop        string // for e.g. demo-3.myshopify.com
@@ -78,28 +76,15 @@ func (e *ErrorResponse) Temporary() bool {
 }
 
 func (api *API) request(endpoint string, method string, params map[string]interface{}, body *bytes.Buffer) (result *bytes.Buffer, status int, err error) {
-	bucketLimit, err := strconv.Atoi(os.Getenv("BUCKET_LIMIT"))
-	if err != nil {
-		bucketLimit = 30
-	}
-
 	if api.backoff == nil {
-		minBackoffSecond, err := strconv.ParseInt(os.Getenv("MIN_BACKOFF_SECOND"), 10, 64)
-		if err != nil {
-			minBackoffSecond = 1
-		}
-		maxBackoffSecond, err := strconv.ParseInt(os.Getenv("MAX_BACKOFF_SECOND"), 10, 64)
-		if err != nil {
-			maxBackoffSecond = 4
-		}
 		api.backoff = &backoff.Backoff{
-			Min:    time.Duration(minBackoffSecond) * time.Second,
-			Max:    time.Duration(maxBackoffSecond) * time.Second,
+			Min:    time.Duration(defaultConfig.MinBackoffValue) * defaultConfig.MinBackOffTimeUnit,
+			Max:    time.Duration(defaultConfig.MaxBackoffValue) * defaultConfig.MaxBackOffTimeUnit,
 			Jitter: true,
 		}
 	}
 	if api.callLimit == 0 {
-		api.callLimit = bucketLimit
+		api.callLimit = defaultConfig.BucketLimit
 	}
 
 	// Keep a copy of body so that we can use it when retrying.
@@ -136,7 +121,7 @@ func (api *API) request(endpoint string, method string, params map[string]interf
 
 	status = resp.StatusCode
 	if status == 429 { // statusTooManyRequests
-		if api.retryCount < MAX_RETRIES {
+		if api.retryCount < defaultConfig.MaxRetries {
 			api.retryCount = api.retryCount + 1
 			b := api.backoff.Duration()
 			log.Global().WithField("backoff duration values", b).WithField("calls made ", calls).WithField("calls limit ", total).Error("time to sleep")
