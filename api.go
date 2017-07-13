@@ -13,11 +13,10 @@ import (
 	"time"
 
 	"github.com/jpillora/backoff"
+	"github.com/vend/log"
 )
 
-const REFILL_RATE = float64(0.5) // 2 per second
-const BUCKET_LIMIT = 40
-const MAX_RETRIES = 3
+var defaultConfig = DefaultConfig()
 
 type API struct {
 	Shop        string // for e.g. demo-3.myshopify.com
@@ -79,14 +78,13 @@ func (e *ErrorResponse) Temporary() bool {
 func (api *API) request(endpoint string, method string, params map[string]interface{}, body *bytes.Buffer) (result *bytes.Buffer, status int, err error) {
 	if api.backoff == nil {
 		api.backoff = &backoff.Backoff{
-			//These are the defaults
-			Min:    100 * time.Millisecond,
-			Max:    2 * time.Second,
+			Min:    defaultConfig.MinBackoffValue,
+			Max:    defaultConfig.MaxBackoffValue,
 			Jitter: true,
 		}
 	}
 	if api.callLimit == 0 {
-		api.callLimit = BUCKET_LIMIT
+		api.callLimit = defaultConfig.BucketLimit
 	}
 
 	// Keep a copy of body so that we can use it when retrying.
@@ -123,9 +121,10 @@ func (api *API) request(endpoint string, method string, params map[string]interf
 
 	status = resp.StatusCode
 	if status == 429 { // statusTooManyRequests
-		if api.retryCount < MAX_RETRIES {
+		if api.retryCount < defaultConfig.MaxRetries {
 			api.retryCount = api.retryCount + 1
 			b := api.backoff.Duration()
+			log.Global().WithField("backoff duration values", b).WithField("calls made ", calls).WithField("calls limit ", total).Error("time to sleep")
 			time.Sleep(b)
 			// try again
 			return api.request(endpoint, method, params, bodyBackup)
