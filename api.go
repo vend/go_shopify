@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/jpillora/backoff"
-	"github.com/vend/log"
 )
 
 var defaultConfig = DefaultConfig()
@@ -124,7 +123,6 @@ func (api *API) request(endpoint string, method string, params map[string]interf
 		if api.retryCount < defaultConfig.MaxRetries {
 			api.retryCount = api.retryCount + 1
 			b := api.backoff.Duration()
-			log.Global().WithField("backoff duration values", b).WithField("calls made ", calls).WithField("calls limit ", total).Error("time to sleep")
 			time.Sleep(b)
 			// try again
 			return api.request(endpoint, method, params, bodyBackup)
