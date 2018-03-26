@@ -14,22 +14,22 @@ type Product struct {
 	// Any attributes which can be removed from shopify likely should use a pointer type.
 	// This allows us to send empty strings to wipe values out, differentiating between not
 	// wanting to send the value.
-	BodyHTML       *string    `json:"body_html,omitempty"`
-	Handle         *string    `json:"handle,omitempty"`
-	CreatedAt      string     `json:"created_at,omitempty"`
-	ID             int64      `json:"id,omitempty"`
-	Images         *[]Image   `json:"images,omitempty"`
-	Options        []Option   `json:"options,omitempty"`
-	ProductType    *string    `json:"product_type,omitempty"`
-	Published      *bool      `json:"published,omitempty"`
-	PublishedAt    *string    `json:"published_at,omitempty"`
-	PublishedScope *string    `json:"published_scope,omitempty"`
-	Tags           *string    `json:"tags,omitempty"`
-	TemplateSuffix *string    `json:"template_suffix,omitempty"`
-	Title          *string    `json:"title,omitempty"`
-	UpdatedAt      *string    `json:"updated_at,omitempty"`
-	Variants       *[]Variant `json:"variants,omitempty"`
-	Vendor         *string    `json:"vendor,omitempty"`
+	BodyHTML       *string   `json:"body_html,omitempty"`
+	Handle         *string   `json:"handle,omitempty"`
+	CreatedAt      string    `json:"created_at,omitempty"`
+	ID             int64     `json:"id,omitempty"`
+	Images         []Image   `json:"images,omitempty"`
+	Options        []Option  `json:"options,omitempty"`
+	ProductType    *string   `json:"product_type,omitempty"`
+	Published      *bool     `json:"published,omitempty"`
+	PublishedAt    *string   `json:"published_at,omitempty"`
+	PublishedScope *string   `json:"published_scope,omitempty"`
+	Tags           *string   `json:"tags,omitempty"`
+	TemplateSuffix *string   `json:"template_suffix,omitempty"`
+	Title          *string   `json:"title,omitempty"`
+	UpdatedAt      *string   `json:"updated_at,omitempty"`
+	Variants       []Variant `json:"variants,omitempty"`
+	Vendor         *string   `json:"vendor,omitempty"`
 
 	api *API
 }
