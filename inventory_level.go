@@ -36,7 +36,18 @@ func (obj *InventoryLevel) Adjust() error {
 // Delete delete an inventory level for a inventory item w. location id.
 func (obj *InventoryLevel) Delete() error {
 	endpoint := fmt.Sprintf("/admin/inventory_levels.json?inventory_item_id=%d&location_id=%d", obj.InventoryItemID, obj.LocationID)
-	return requestInvLevel(endpoint, "DELETE", nil)
+	expectedStatus := 204
+	res, status, err := obj.api.request(endpoint, "DELETE", nil, nil)
+
+	if err != nil {
+		return err
+	}
+
+	if status != expectedStatus {
+		return newErrorResponse(status, nil, res)
+	}
+
+	return nil
 }
 
 // requestInvLevel private func to make requests for inventory level.
@@ -61,14 +72,16 @@ func requestInvLevel(endpoint, method string, obj *InventoryLevel) error {
 		return newErrorResponse(status, reqBody, res)
 	}
 
-	r := map[string]InventoryLevel{}
-	err = json.NewDecoder(res).Decode(&r)
+	r := &struct {
+		InventoryLevel InventoryLevel `json:"inventory_level"`
+	}{}
+	err = json.NewDecoder(res).Decode(r)
 	if err != nil {
 		return err
 	}
 
 	api := obj.api
-	*obj = r["inventory_level"]
+	*obj = r.InventoryLevel
 	obj.api = api
 
 	return nil

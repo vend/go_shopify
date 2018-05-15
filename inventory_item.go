@@ -57,20 +57,20 @@ func (api *API) InventoryItems() ([]InventoryItem, error) {
 		return nil, newErrorResponse(status, nil, res)
 	}
 
-	r := &map[string][]InventoryItem{}
+	r := &struct {
+		InventoryItems []InventoryItem `json:"inventory_items"`
+	}{}
 	err = json.NewDecoder(res).Decode(r)
-
-	result := (*r)["inventory_items"]
 
 	if err != nil {
 		return nil, err
 	}
 
-	for _, v := range result {
+	for _, v := range r.InventoryItems {
 		v.api = api
 	}
 
-	return result, nil
+	return r.InventoryItems, nil
 }
 
 //Update update an existing inventory item based on inventory_item_id
@@ -98,14 +98,16 @@ func (obj *InventoryItem) Update() error {
 		return newErrorResponse(status, reqBody, res)
 	}
 
-	r := map[string]InventoryItem{}
-	err = json.NewDecoder(res).Decode(&r)
+	r := &struct {
+		InventoryItem InventoryItem `json:"inventory_item"`
+	}{}
+	err = json.NewDecoder(res).Decode(r)
 	if err != nil {
 		return err
 	}
 
 	api := obj.api
-	*obj = r["inventory_item"]
+	*obj = r.InventoryItem
 	obj.api = api
 
 	return nil
