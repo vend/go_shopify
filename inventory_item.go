@@ -4,20 +4,21 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
-//InventoryItem a struct to reprensent Shpoify' inventory_item
+// InventoryItem a struct to represent Shpoify' inventory_item.
 type InventoryItem struct {
-	ID        int64  `json:"id"`
-	Sku       int64  `json:"sku"`
-	Tracked   int64  `json:"tracked"`
-	CreatedAt string `json:"created_at,omitempty"`
-	UpdatedAt string `json:"updated_at,omitempty"`
+	ID        int64     `json:"id"`
+	Sku       string    `json:"sku"`
+	Tracked   bool      `json:"tracked"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 
 	api *API
 }
 
-//InventoryItem Get one inventoryItem from api by inventory_item_id
+// InventoryItem Get one inventoryItem from api by inventory_item_id.
 func (api *API) InventoryItem(id int64) (*InventoryItem, error) {
 	endpoint := fmt.Sprintf("/admin/inventory_items/%.json", id)
 	res, status, err := api.request(endpoint, "GET", nil, nil)
@@ -27,7 +28,7 @@ func (api *API) InventoryItem(id int64) (*InventoryItem, error) {
 	}
 
 	if status != 200 {
-		return nil, fmt.Errorf("Status returned: %d", status)
+		return nil, newErrorResponse(status, nil, res)
 	}
 
 	r := &map[string]InventoryItem{}
@@ -44,7 +45,7 @@ func (api *API) InventoryItem(id int64) (*InventoryItem, error) {
 	return &result, nil
 }
 
-//InventoryItems Get a list of inventoryItems from api, max 100 items
+// InventoryItems Get a list of inventoryItems from api, max 100 items.
 func (api *API) InventoryItems() ([]InventoryItem, error) {
 	res, status, err := api.request("/admin/inventory_items.json", "GET", nil, nil)
 
@@ -53,7 +54,7 @@ func (api *API) InventoryItems() ([]InventoryItem, error) {
 	}
 
 	if status != 200 {
-		return nil, fmt.Errorf("Status returned: %d", status)
+		return nil, newErrorResponse(status, nil, res)
 	}
 
 	r := &map[string][]InventoryItem{}
