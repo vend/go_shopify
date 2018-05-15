@@ -20,7 +20,7 @@ type InventoryItem struct {
 
 // InventoryItem Get one inventoryItem from api by inventory_item_id.
 func (api *API) InventoryItem(id int64) (*InventoryItem, error) {
-	endpoint := fmt.Sprintf("/admin/inventory_items/%.json", id)
+	endpoint := fmt.Sprintf("/admin/inventory_items/%d.json", id)
 	res, status, err := api.request(endpoint, "GET", nil, nil)
 
 	if err != nil {
@@ -75,7 +75,7 @@ func (api *API) InventoryItems() ([]InventoryItem, error) {
 
 //Update update an existing inventory item based on inventory_item_id
 func (obj *InventoryItem) Update() error {
-	endpoint := fmt.Sprintf("/admin/inventory_items/%.json", obj.ID)
+	endpoint := fmt.Sprintf("/admin/inventory_items/%d.json", obj.ID)
 	method := "PUT"
 	expectedStatus := 200
 
