@@ -31,15 +31,15 @@ func (api *API) InventoryItem(id int64) (*InventoryItem, error) {
 		return nil, newErrorResponse(status, nil, res)
 	}
 
-	r := &map[string]InventoryItem{}
+	r := &struct {
+		InventoryItem InventoryItem `json:"inventory_item"`
+	}{}
 	err = json.NewDecoder(res).Decode(r)
-
-	result := (*r)["inventory_item"]
-
 	if err != nil {
 		return nil, err
 	}
 
+	result := r.InventoryItem
 	result.api = api
 
 	return &result, nil
