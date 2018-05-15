@@ -20,32 +20,28 @@ type InventoryLevel struct {
 //Connect connect an inventory item to a location
 func (obj *InventoryLevel) Connect() error {
 	endpoint := fmt.Sprintf("/admin/inventory_levels/connect.json")
-	method := "POST"
-	return request(endpoint, method, obj)
+	return requestInvLevel(endpoint, "POST", obj)
 }
 
 //Set set an inventory level for a variant w. location id
 func (obj *InventoryLevel) Set() error {
 	endpoint := fmt.Sprintf("/admin/inventory_levels/set.json")
-	method := "POST"
-	return request(endpoint, method, obj)
+	return requestInvLevel(endpoint, "POST", obj)
 }
 
 //Adjust adjust an inventory level for a inventory item w. location id
 func (obj *InventoryLevel) Adjust() error {
 	endpoint := fmt.Sprintf("/admin/inventory_levels/adjust.json")
-	method := "POST"
-	return request(endpoint, method, obj)
+	return requestInvLevel(endpoint, "POST", obj)
 }
 
 //Delete delete an inventory level for a inventory item w. location id
 func (obj *InventoryLevel) Delete() error {
 	endpoint := fmt.Sprintf("/admin/inventory_levels.json?inventory_item_id=%&location_id=%", obj.InventoryItemID, obj.LocationID)
-	method := "DELETE"
-	return request(endpoint, method, obj)
+	return requestInvLevel(endpoint, "DELETE", obj)
 }
 
-func request(endpoint, method string, obj *InventoryLevel) error {
+func requestInvLevel(endpoint, method string, obj *InventoryLevel) error {
 	expectedStatus := 200
 	var buf bytes.Buffer
 	body := map[string]*InventoryLevel{
