@@ -38,11 +38,14 @@ func (obj *InventoryLevel) Delete() error {
 	endpoint := fmt.Sprintf("/admin/inventory_levels.json?inventory_item_id=%d&location_id=%d", obj.InventoryItemID, obj.LocationID)
 	expectedStatus := 204
 	res, status, err := obj.api.request(endpoint, "DELETE", nil, nil)
+	if err != nil {
+		return err
+	}
 	if status != expectedStatus {
 		return newErrorResponse(status, nil, res)
 	}
 
-	return err
+	return nil
 }
 
 // requestInvLevel private func to make requests for inventory level.

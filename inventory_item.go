@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// InventoryItem a struct to represent Shpoify' inventory_item.
+// InventoryItem a struct to represent Shopify's inventory_item.
 type InventoryItem struct {
 	ID        int64     `json:"id"`
 	Sku       string    `json:"sku"`
@@ -66,8 +66,8 @@ func (api *API) InventoryItems() ([]InventoryItem, error) {
 		return nil, err
 	}
 
-	for _, v := range r.InventoryItems {
-		v.api = api
+	for v := range r.InventoryItems {
+		r.InventoryItems[v].api = api
 	}
 
 	return r.InventoryItems, nil
