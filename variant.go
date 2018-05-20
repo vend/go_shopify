@@ -41,38 +41,54 @@ func (api *API) NewVariant() *Variant {
 	return &Variant{api: api}
 }
 
+func (obj *Variant) Get() (*Variant, error) {
+	return obj, requestVariant("GET", obj)
+}
+
 func (obj *Variant) Save() error {
+	return requestVariant("PUT", obj)
+}
+
+func requestVariant(method string, obj *Variant) error {
 	endpoint := fmt.Sprintf("/admin/variants/%d.json", obj.ID)
-	method := "PUT"
 	expectedStatus := 200
 
-	var buf bytes.Buffer
-	body := map[string]*Variant{
-		"variant": obj,
-	}
-	err := json.NewEncoder(&buf).Encode(body)
-	if err != nil {
-		return err
-	}
-	reqBody := buf.Bytes()
+	if method == "GET" {
+		res, status, err := obj.api.request(endpoint, method, nil, nil)
+		if err != nil {
+			return err
+		}
+	} else {
+		var buf bytes.Buffer
+		body := map[string]*Variant{
+			"variant": obj,
+		}
+		err := json.NewEncoder(&buf).Encode(body)
+		if err != nil {
+			return err
+		}
+		reqBody := buf.Bytes()
 
-	res, status, err := obj.api.request(endpoint, method, nil, &buf)
-	if err != nil {
-		return err
+		res, status, err := obj.api.request(endpoint, method, nil, &buf)
+		if err != nil {
+			return err
+		}
 	}
 
 	if status != expectedStatus {
 		return newErrorResponse(status, reqBody, res)
 	}
 
-	r := map[string]Variant{}
-	err = json.NewDecoder(res).Decode(&r)
+	r := &struct {
+		Variant Variant `json:"variant"`
+	}{}
+	err = json.NewDecoder(res).Decode(r)
 	if err != nil {
 		return err
 	}
 
 	api := obj.api
-	*obj = r["variant"]
+	*obj = r.Variant
 	obj.api = api
 
 	return nil
