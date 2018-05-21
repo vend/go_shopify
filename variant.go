@@ -6,6 +6,7 @@ import (
 	"fmt"
 )
 
+//Variant struct to present Shopify's variant
 type Variant struct {
 	Barcode              string      `json:"barcode,omitempty"`
 	CompareAtPrice       string      `json:"compare_at_price,omitempty"`
@@ -37,42 +38,53 @@ type Variant struct {
 	api *API
 }
 
+// NewVariant function to construct a new variant
 func (api *API) NewVariant() *Variant {
 	return &Variant{api: api}
 }
 
-func (obj *Variant) Get() (*Variant, error) {
-	return obj, requestVariant("GET", obj)
+// GET get one variant based on variant id
+func (api *API) Get(id int64) (*Variant, error) {
+	endpoint := fmt.Sprintf("/admin/orders/%d.json", id)
+	res, status, err := api.request(endpoint, "GET", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if status != 200 {
+		return nil, fmt.Errorf("Status returned: %d", status)
+	}
+
+	r := &struct {
+		Variant Variant `json:"variant"`
+	}{}
+	err = json.NewDecoder(res).Decode(r)
+	if err != nil {
+		return nil, err
+	}
+	result := r.Variant
+	result.api = api
+	return &result, nil
 }
 
+// Save changes to variants
 func (obj *Variant) Save() error {
-	return requestVariant("PUT", obj)
-}
-
-func requestVariant(method string, obj *Variant) error {
 	endpoint := fmt.Sprintf("/admin/variants/%d.json", obj.ID)
 	expectedStatus := 200
 
-	if method == "GET" {
-		res, status, err := obj.api.request(endpoint, method, nil, nil)
-		if err != nil {
-			return err
-		}
-	} else {
-		var buf bytes.Buffer
-		body := map[string]*Variant{
-			"variant": obj,
-		}
-		err := json.NewEncoder(&buf).Encode(body)
-		if err != nil {
-			return err
-		}
-		reqBody := buf.Bytes()
+	var buf bytes.Buffer
+	body := map[string]*Variant{
+		"variant": obj,
+	}
+	err := json.NewEncoder(&buf).Encode(body)
+	if err != nil {
+		return err
+	}
+	reqBody := buf.Bytes()
 
-		res, status, err := obj.api.request(endpoint, method, nil, &buf)
-		if err != nil {
-			return err
-		}
+	res, status, err := obj.api.request(endpoint, "PUT", nil, &buf)
+	if err != nil {
+		return err
 	}
 
 	if status != expectedStatus {
