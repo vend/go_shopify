@@ -45,7 +45,7 @@ func (api *API) NewVariant() *Variant {
 
 // GET get one variant based on variant id
 func (api *API) Get(id int64) (*Variant, error) {
-	endpoint := fmt.Sprintf("/admin/orders/%d.json", id)
+	endpoint := fmt.Sprintf("/admin/variants/%d.json", id)
 	res, status, err := api.request(endpoint, "GET", nil, nil)
 	if err != nil {
 		return nil, err
