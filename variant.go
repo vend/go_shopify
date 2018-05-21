@@ -6,6 +6,7 @@ import (
 	"fmt"
 )
 
+//Variant struct to present Shopify's variant
 type Variant struct {
 	Barcode              string      `json:"barcode,omitempty"`
 	CompareAtPrice       string      `json:"compare_at_price,omitempty"`
@@ -37,13 +38,38 @@ type Variant struct {
 	api *API
 }
 
+// NewVariant function to construct a new variant
 func (api *API) NewVariant() *Variant {
 	return &Variant{api: api}
 }
 
+// GET get one variant based on variant id
+func (api *API) Get(id int64) (*Variant, error) {
+	endpoint := fmt.Sprintf("/admin/variants/%d.json", id)
+	res, status, err := api.request(endpoint, "GET", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if status != 200 {
+		return nil, fmt.Errorf("Status returned: %d", status)
+	}
+
+	r := &struct {
+		Variant Variant `json:"variant"`
+	}{}
+	err = json.NewDecoder(res).Decode(r)
+	if err != nil {
+		return nil, err
+	}
+	result := r.Variant
+	result.api = api
+	return &result, nil
+}
+
+// Save changes to variants
 func (obj *Variant) Save() error {
 	endpoint := fmt.Sprintf("/admin/variants/%d.json", obj.ID)
-	method := "PUT"
 	expectedStatus := 200
 
 	var buf bytes.Buffer
@@ -56,7 +82,7 @@ func (obj *Variant) Save() error {
 	}
 	reqBody := buf.Bytes()
 
-	res, status, err := obj.api.request(endpoint, method, nil, &buf)
+	res, status, err := obj.api.request(endpoint, "PUT", nil, &buf)
 	if err != nil {
 		return err
 	}
@@ -65,14 +91,16 @@ func (obj *Variant) Save() error {
 		return newErrorResponse(status, reqBody, res)
 	}
 
-	r := map[string]Variant{}
-	err = json.NewDecoder(res).Decode(&r)
+	r := &struct {
+		Variant Variant `json:"variant"`
+	}{}
+	err = json.NewDecoder(res).Decode(r)
 	if err != nil {
 		return err
 	}
 
 	api := obj.api
-	*obj = r["variant"]
+	*obj = r.Variant
 	obj.api = api
 
 	return nil
